@@ -16,7 +16,7 @@ var PaymentsData = models.Payments{
 		Status:             "Pendant",
 	},
 	{
-		Key:                "h_di!asjcoui2wsc22hcjdaiaaaaiu8x.asi+cn-nc",
+		Key:                "h_di!asjcoui2wsc22hcjdaiaaaaiu8x.asi+cn-nz",
 		External_reference: 10012153,
 		Rate:               250.80,
 		Status:             "Completed",
