@@ -1,6 +1,6 @@
 package data
 
-import "github.com/faztweb/golang-restapi-crud/models"
+import "github.com/istefanini/restapi-beta/models"
 
 var PaymentsData = models.Payments{
 	{

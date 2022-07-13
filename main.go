@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"github.com/faztweb/golang-restapi-crud/handlers"
+
 	"github.com/gorilla/mux"
+	"github.com/istefanini/restapi-beta/handlers"
 )
 
 func main() {

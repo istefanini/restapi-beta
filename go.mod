@@ -1,4 +1,4 @@
-module github.com/faztweb/golang-restapi-crud
+module github.com/istefanini/restapi-beta
 
 go 1.18
 

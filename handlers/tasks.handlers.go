@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/faztweb/golang-restapi-crud/data"
-	"github.com/faztweb/golang-restapi-crud/models"
 	"github.com/gorilla/mux"
+	"github.com/istefanini/restapi-beta/data"
+	"github.com/istefanini/restapi-beta/models"
 )
 
 func CreatePayment(w http.ResponseWriter, r *http.Request) {
