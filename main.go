@@ -11,7 +11,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 
-	a := 
+	a := &api.API{}
 
 	a.RegisterRoutes(r)
 
