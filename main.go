@@ -1,20 +1,28 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/istefanini/restapi-beta/handlers"
 )
 
 func main() {
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", handlers.IndexRoute)
-	router.HandleFunc("/payment/api/v1/notificaction-mol-payment", handlers.CreatePayment).Methods("POST")
-	router.HandleFunc("/payment/api/v1/payments", handlers.GetPayments).Methods("GET")
-	router.HandleFunc("/payment/api/v1/payments/{external_reference}", handlers.GetOnePayment).Methods("GET")
+	r := mux.NewRouter()
 
-	fmt.Println("Server corriendo en puerto", 3000)
-	log.Fatal(http.ListenAndServe(":3000", router))
+	a := 
+
+	a.RegisterRoutes(r)
+
+	
+	r.HandleFunc("/", handlers.IndexRoute).Methods(http.MethodGet)
+
+	srv:= &http.Server{
+		Addr: ":3000",
+		Handler: r,
+	}
+
+	fmt.Println("Server corriendo en puerto", srv.Addr)
+	srv.ListenAndServe()
 }
