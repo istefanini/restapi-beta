@@ -1,15 +1,12 @@
 package routes
 
-import(
-	"fmt"
-	"log"
-	"net/http"
+import (
 	"github.com/gorilla/mux"
 	"github.com/istefanini/restapi-beta/handlers"
 	"github.com/istefanini/restapi-beta/middleware"
 )
 
-func RegisteredRoutes(r *mux.Router){
+func RegisteredRoutes(r *mux.Router) {
 	r.Use(requestIDHandler)
-	r.HandleFunc("/payments", handlers.GetPayments).Methods("GET")
+	r.HandleFunc("/payment/api/v1/payments", handlers.GetPayments).Methods("GET")
 }
