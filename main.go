@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/istefanini/restapi-beta/handlers"
+	"github.com/istefanini/restapi-beta/middleware"
 )
 
 func main() {
