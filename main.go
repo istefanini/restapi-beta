@@ -4,16 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 	"github.com/gorilla/mux"
 	"github.com/istefanini/restapi-beta/handlers"
-	"github.com/istefanini/restapi-beta/middleware"
 )
 
 func main() {
-
 	router := mux.NewRouter().StrictSlash(true)
-	router.Use(requestIDHandler)
 	router.HandleFunc("/", handlers.IndexRoute)
 	router.HandleFunc("/payment/api/v1/notificaction-mol-payment", handlers.CreatePayment).Methods("POST")
 	router.HandleFunc("/payment/api/v1/payments", handlers.GetPayments).Methods("GET")
