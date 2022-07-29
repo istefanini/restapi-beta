@@ -1,72 +1,80 @@
 package api
 
-import(
+import (
+	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"strconv"
-	"github.com/gorilla/mux"
+
+	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/istefanini/restapi-beta/models"
 )
 
 type API struct{}
 
-var PaymentsData = models.Payments{
-	{
-		Key:                "h_di!asjcoui2wsc22hcjdaiaaaaiu8x.asi+cn-na",
-		External_reference: 10012151,
-		Rate:               1050.50,
-		Status:             "Completed",
-	},
-	{
-		Key:                "h_di!asjcoui2wsc22hcjdaiaaaaiu8x.asi+cn-nb",
-		External_reference: 10012152,
-		Rate:               370,
-		Status:             "Pendant",
-	},
-	{
-		Key:                "h_di!asjcoui2wsc22hcjdaiaaaaiu8x.asi+cn-nz",
-		External_reference: 10012153,
-		Rate:               250.80,
-		Status:             "Completed",
-	},
-}
+func ConectDB() (conection *sql.DB) {
+	Driver := "sqlserver"
+	Username := "serviceweb"
+	Password := "Condor551"
+	Host := "172.16.1.144"
+	Instance := "dv"
+	database := "Interoperabilidad"
 
-func GetPayments(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(PaymentsData)
-}
-
-func CreatePayment(w http.ResponseWriter, r *http.Request) {
-	var newPayment models.Payment
-
-	reqBody, err := ioutil.ReadAll(r.Body)
-
+	conection, err := sql.Open(Driver, Driver+"://"+Username+":"+Password+"@"+Host+"/"+Instance+"?"+"database="+database+"&"+"encrypt=disable")
 	if err != nil {
-		fmt.Fprintf(w, "Error procesando el pago")
+		panic(err.Error())
 	}
-
-	json.Unmarshal(reqBody, &newPayment)
-	PaymentsData = append(PaymentsData, newPayment)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newPayment)
-
+	return conection
 }
 
-func GetOnePayment(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	paymentID, err := strconv.Atoi(vars["external_reference"])
-	if err != nil {
-		fmt.Fprintf(w, "Invalid external_reference")
+func PostPayment(w http.ResponseWriter, r *http.Request) {
+
+	headerContentType := r.Header.Get("Content-Type")
+	if headerContentType != "application/json" {
+		errorResponse(w, "Content type is not application/json", http.StatusUnsupportedMediaType)
 		return
 	}
 
-	for _, payment := range PaymentsData {
-		if payment.External_reference == paymentID {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(payment)
+	var newPayment models.Payment
+	var unmarshalErr *json.UnmarshalTypeError
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&newPayment)
+	if err != nil {
+		if errors.As(err, &unmarshalErr) {
+			errorResponse(w, "Bad Request. Wrong type provided for field "+unmarshalErr.Field, http.StatusBadRequest)
+		} else {
+			errorResponse(w, "Bad Request "+err.Error(), http.StatusBadRequest)
 		}
+		return
 	}
+
+	ctx := context.Background()
+	DBConection := ConectDB()
+	tsql := fmt.Sprintf("USE [Interoperabilidad] INSERT INTO [dbo].[NotificationMOLPayment]([Key],[External_Reference],[Status],[Amount]) VALUES (@Key, @External_reference, @Status, @Amount);")
+	result, err2 := DBConection.ExecContext(
+		ctx,
+		tsql,
+		sql.Named("Key", newPayment.Key),
+		sql.Named("External_reference", newPayment.External_reference),
+		sql.Named("Status", newPayment.Status),
+		sql.Named("Amount", newPayment.Rate),
+	)
+	if err2 != nil {
+		errorResponse(w, "Error inserting new row: "+err2.Error(), http.StatusBadRequest)
+		return
+	}
+	fmt.Println(result)
+}
+
+func errorResponse(w http.ResponseWriter, message string, httpStatusCode int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpStatusCode)
+	resp := make(map[string]string)
+	resp["message"] = message
+	jsonResp, _ := json.Marshal(resp)
+	w.Write(jsonResp)
 }
